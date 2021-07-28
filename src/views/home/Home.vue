@@ -69,7 +69,8 @@ export default {
       currentType: 'pop',
       isShowBackTop: false,
       tabOffsetTop: 0,
-      isTabFixed: false
+      isTabFixed: false,
+      itemImageListener: null
     }
   },
   computed: {
@@ -89,10 +90,12 @@ export default {
   mounted() {
     //1. 图片加载完成的事件监听
     const refresh = debounce(this.$refs.scroll.refresh, 200)
-    this.$bus.$on('itemImageLoad', () => {
+    this.itemImageListener = () => {
+      console.log(this.$route.path + '图片加载完成监听');
       refresh();
       // this.$refs.scroll && this.$refs.scroll.refresh();
-    })
+    }
+    this.$bus.$on('itemImageLoad', this.itemImageListener)
 
 
   },
@@ -161,6 +164,11 @@ export default {
         // this.$refs.scroll.refresh();
       })
     }
+  },
+  // 使用keep-alive 包裹的组件在切换路由时执行
+  deactivated() {
+    console.log(`Home路由切换`)
+    this.$bus.$off('itemImageLoad',this.itemImageListener);
   }
 }
 </script>

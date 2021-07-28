@@ -28,6 +28,7 @@ import GoodsList from "../../components/content/goods/GoodsList";
 
 import {getRecommend} from "../../network/detail";
 import Scroll from "../../components/common/scroll/Scroll";
+import {debounce} from "../../common/utils";
 
 export default {
   name: "Detail",
@@ -51,7 +52,8 @@ export default {
       detailInfo: {},
       paramsInfo: {},
       commentInfo: {},
-      recommends:null
+      recommends:null,
+      itemImageListener:null
     }
   },
   created() {
@@ -94,10 +96,22 @@ export default {
       console.log(this.recommends);
     })
   },
+  mounted() {
+    const refresh = debounce(this.$refs.scroll.refresh, 200);
+    this.itemImageListener = ()=>{
+      console.log(`${this.$route.path}图片加载完成`);
+      refresh();
+    }
+    this.$bus.$on('itemImageLoad',this.itemImageListener);
+  },
   methods: {
     imageLoad() {
       this.$refs.scroll.refresh();
     }
+  },
+  destroyed() {
+    console.log(`详情页组件销毁,事件总线停止监听`);
+    this.$bus.$off('itemImageLoad',this.itemImageListener);
   }
 }
 </script>
