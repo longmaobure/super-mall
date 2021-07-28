@@ -1,8 +1,13 @@
 <template>
   <div id="detail">
+    <!--    详情导航-->
     <detail-nav-bar class="detail-nav"
-                    @titleClick="titleClick"></detail-nav-bar>
-    <scroll class="content" ref="scroll" :pull-up-load="true">
+                    @titleClick="titleClick" ref="detailNav"></detail-nav-bar>
+    <scroll class="content"
+            ref="scroll"
+            :pull-up-load="true"
+            @scroll="detailContentScroll"
+            :probe-type="3">
       <detail-swiper :top-images="topImages"></detail-swiper>
       <detail-base-info :goods="goods"></detail-base-info>
       <detail-shop-info :shop="shop"></detail-shop-info>
@@ -11,27 +16,29 @@
       <detail-comment-info ref="comment" :comment-info="commentInfo"></detail-comment-info>
       <goods-list :goods="recommends" ref="recommend"></goods-list>
     </scroll>
+    <!--详情底部-->
+    <detail-bottom-bar></detail-bottom-bar>
   </div>
 </template>
 
 <script>
 
 import DetailNavBar from "./childComps/DetailNavBar";
-import {getDetailMultiata, Goods, Shop, GoodsParam} from "../../network/detail";
 import DetailSwiper from "./childComps/DetailSwiper";
 import DetailBaseInfo from "./childComps/DetailBaseInfo";
 import DetailShopInfo from "./childComps/DetailShopInfo";
 import DetailGoodsInfo from "./childComps/DetailGoodsInfo";
 import DetailParamInfo from "./childComps/DetailParamInfo";
 import DetailCommentInfo from "./childComps/DetailCommentInfo";
+import DetailBottomBar from "./childComps/DetailBottomBar";
 
 import GoodsList from "../../components/content/goods/GoodsList";
-
-import {getRecommend} from "../../network/detail";
 import Scroll from "../../components/common/scroll/Scroll";
 
+import {getDetailMultiata, Goods, Shop, GoodsParam} from "../../network/detail";
 import {itemListenerMixin} from "../../common/mixin";
 import {debounce} from "../../common/utils";
+import {getRecommend} from "../../network/detail";
 
 export default {
   name: "Detail",
@@ -44,6 +51,7 @@ export default {
     DetailGoodsInfo,
     DetailParamInfo,
     DetailCommentInfo,
+    DetailBottomBar,
     Scroll
   },
   data() {
@@ -57,7 +65,8 @@ export default {
       commentInfo: {},
       recommends: null,
       themeTopYs: [],
-      getThemeYs: null
+      getThemeYs: null,
+      currentIndex: 0
     }
   },
   mixins: [itemListenerMixin],
@@ -110,6 +119,7 @@ export default {
       this.themeTopYs.push(this.$refs.param.$el.offsetTop - 44);
       this.themeTopYs.push(this.$refs.comment.$el.offsetTop - 44);
       this.themeTopYs.push(this.$refs.recommend.$el.offsetTop - 44);
+      this.themeTopYs.push(Number.MAX_VALUE);
       console.log(this.themeTopYs);
     }, 200)
   },
@@ -126,6 +136,48 @@ export default {
       console.log(index);
       this.$refs.scroll.scroll.scrollTo(0, -this.themeTopYs[index], 200)
       // this.$refs.scroll.scrollTo(0,-this.themeTopYs[index],200);
+    },
+    detailContentScroll(position) {
+      // console.log(position.y);
+      // console.log(this.themeTopYs)
+      //1. 获取滚动的y值
+      const positionY = -position.y;
+      // console.log(positionY)
+      //  2. 根据y值跟主题中的值进行对比
+      //  [0, 14157, 15050, 15246]
+      //   y 值在 0-14157之间 index = 0
+      //   y 值在 14157-15050之间 index = 1
+      //   y 值在 15050-15246之间 index =2
+      //   y 值超过 15246 index = 3
+      let length = this.themeTopYs.length
+      /**
+       * 判断的方案:
+       *  方案一:
+       *    条件: (i < (length-1) && currentPos >= iPos && currentPos < this.themeTops[i+1]) || (i === (length-1) && currentPos >= iPos),
+       *    优点: 不需要引入其他的内容, 通过逻辑解决
+       *    缺点: 判断条件过长, 并且不容易理解
+       *  方案二:
+       *    条件: 给themeTops最后添加一个很大的值, 用于和最后一个主题的top进行比较.
+       *    优点: 简洁明了, 便于理解
+       *    缺点: 需要引入一个较大的int数字
+       * 疑惑: 在第一个判断中, 为什么不能直接判断(currentPos >= iPos)即可?
+       * 解答: 比如在某一个currentPos大于第0个时, 就会break, 不会判断后面的i了.
+       */
+      for (let i = 0; i < length - 1; i++) {
+        if (this.currentIndex !== i && (positionY >= this.themeTopYs[i] && positionY < this.themeTopYs[i + 1])) {
+          this.currentIndex = i;
+          this.$refs.detailNav.currentIndex = this.currentIndex;
+        }
+      }
+      // for (let i = 0; i < length; i++) {
+      //   if (this.currentIndex!==i&&(i < length - 1 && positionY >= this.themeTopYs[i] && positionY < this.themeTopYs[i + 1]) ||
+      //     (i === length - 1 && positionY >= this.themeTopYs[i])) {
+      //     this.currentIndex = i;
+      //     // console.log(this.currentIndex)
+      //     this.$refs.detailNav.currentIndex = this.currentIndex;
+      //   }
+      // }
+
     }
   },
   destroyed() {
@@ -152,7 +204,7 @@ export default {
 
 .content {
   /*height: calc(100% - 65px);*/
-  height: calc(100% - 44px);
+  height: calc(100% - 44px - 60px);
 }
 
 
