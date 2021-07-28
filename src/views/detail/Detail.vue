@@ -1,14 +1,15 @@
 <template>
   <div id="detail">
-    <detail-nav-bar class="detail-nav"></detail-nav-bar>
+    <detail-nav-bar class="detail-nav"
+                    @titleClick="titleClick"></detail-nav-bar>
     <scroll class="content" ref="scroll" :pull-up-load="true">
       <detail-swiper :top-images="topImages"></detail-swiper>
       <detail-base-info :goods="goods"></detail-base-info>
       <detail-shop-info :shop="shop"></detail-shop-info>
       <detail-goods-info :detail-info="detailInfo" @imageLoad="imageLoad"></detail-goods-info>
-      <detail-param-info :param-info="paramsInfo"></detail-param-info>
-      <detail-comment-info :comment-info="commentInfo"></detail-comment-info>
-      <goods-list :goods="recommends"></goods-list>
+      <detail-param-info ref="param" :param-info="paramsInfo"></detail-param-info>
+      <detail-comment-info ref="comment" :comment-info="commentInfo"></detail-comment-info>
+      <goods-list :goods="recommends" ref="recommend"></goods-list>
     </scroll>
   </div>
 </template>
@@ -30,6 +31,7 @@ import {getRecommend} from "../../network/detail";
 import Scroll from "../../components/common/scroll/Scroll";
 
 import {itemListenerMixin} from "../../common/mixin";
+import {debounce} from "../../common/utils";
 
 export default {
   name: "Detail",
@@ -54,6 +56,8 @@ export default {
       paramsInfo: {},
       commentInfo: {},
       recommends: null,
+      themeTopYs: [],
+      getThemeYs: null
     }
   },
   mixins: [itemListenerMixin],
@@ -96,6 +100,18 @@ export default {
       this.recommends = res.data.list;
       console.log(this.recommends);
     })
+
+    // 4.给getThemeYs 函数赋值, 用于获取详情页标题点击跳转对应的top值,
+    // debounce 函数进行防抖操作,防止多次调用
+    this.getThemeYs = debounce(() => {
+      this.themeTopYs = [];
+
+      this.themeTopYs.push(0);
+      this.themeTopYs.push(this.$refs.param.$el.offsetTop - 44);
+      this.themeTopYs.push(this.$refs.comment.$el.offsetTop - 44);
+      this.themeTopYs.push(this.$refs.recommend.$el.offsetTop - 44);
+      console.log(this.themeTopYs);
+    }, 200)
   },
   mounted() {
 
@@ -103,6 +119,13 @@ export default {
   methods: {
     imageLoad() {
       this.$refs.scroll.refresh();
+
+      this.getThemeYs();
+    },
+    titleClick(index) {
+      console.log(index);
+      this.$refs.scroll.scroll.scrollTo(0, -this.themeTopYs[index], 200)
+      // this.$refs.scroll.scrollTo(0,-this.themeTopYs[index],200);
     }
   },
   destroyed() {
