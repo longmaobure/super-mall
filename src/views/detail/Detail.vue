@@ -28,7 +28,8 @@ import GoodsList from "../../components/content/goods/GoodsList";
 
 import {getRecommend} from "../../network/detail";
 import Scroll from "../../components/common/scroll/Scroll";
-import {debounce} from "../../common/utils";
+
+import {itemListenerMixin} from "../../common/mixin";
 
 export default {
   name: "Detail",
@@ -52,10 +53,10 @@ export default {
       detailInfo: {},
       paramsInfo: {},
       commentInfo: {},
-      recommends:null,
-      itemImageListener:null
+      recommends: null,
     }
   },
+  mixins: [itemListenerMixin],
   created() {
     // 1. 保存传入的id
     this.iid = this.$route.params.iid;
@@ -90,19 +91,14 @@ export default {
       console.log(err)
     });
     //  3. 获取推荐信息
-    getRecommend().then(res=>{
+    getRecommend().then(res => {
       // console.log(res);
       this.recommends = res.data.list;
       console.log(this.recommends);
     })
   },
   mounted() {
-    const refresh = debounce(this.$refs.scroll.refresh, 200);
-    this.itemImageListener = ()=>{
-      console.log(`${this.$route.path}图片加载完成`);
-      refresh();
-    }
-    this.$bus.$on('itemImageLoad',this.itemImageListener);
+
   },
   methods: {
     imageLoad() {
@@ -111,7 +107,7 @@ export default {
   },
   destroyed() {
     console.log(`详情页组件销毁,事件总线停止监听`);
-    this.$bus.$off('itemImageLoad',this.itemImageListener);
+    this.$bus.$off('itemImageLoad', this.itemImageListener);
   }
 }
 </script>

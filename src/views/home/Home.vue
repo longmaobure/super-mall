@@ -30,8 +30,7 @@ import TabControl from "../../components/content/tabControl/TabControl";
 import GoodsList from "../../components/content/goods/GoodsList";
 import Scroll from "../../components/common/scroll/Scroll";
 import BackTop from "../../components/content/backTop/BackTop";
-import {debounce} from "../../common/utils";
-
+import {itemListenerMixin} from "../../common/mixin";
 
 import {getHomeMultiata, getHomeGoods} from "../../network/home";
 
@@ -70,9 +69,9 @@ export default {
       isShowBackTop: false,
       tabOffsetTop: 0,
       isTabFixed: false,
-      itemImageListener: null
     }
   },
+  mixins: [itemListenerMixin],
   computed: {
     showGoods() {
       return this.goods[this.currentType].list
@@ -88,15 +87,6 @@ export default {
 
   },
   mounted() {
-    //1. 图片加载完成的事件监听
-    const refresh = debounce(this.$refs.scroll.refresh, 200)
-    this.itemImageListener = () => {
-      console.log(this.$route.path + '图片加载完成监听');
-      refresh();
-      // this.$refs.scroll && this.$refs.scroll.refresh();
-    }
-    this.$bus.$on('itemImageLoad', this.itemImageListener)
-
 
   },
   methods: {
@@ -142,7 +132,7 @@ export default {
       //获取tabControl 的offsetTop
       //所有的组件都有一个属性 $el: 用于获取组件种的元素
       this.tabOffsetTop = this.$refs.tabControl2.$el.offsetTop;
-      console.log(this.tabOffsetTop);
+      // console.log(this.tabOffsetTop);
     },
 
     /*
@@ -158,7 +148,7 @@ export default {
     getHomeGoods(type) {
       const page = this.goods[type].page + 1;
       getHomeGoods(type, page).then(res => {
-        console.log(res.data.list);
+        // console.log(res.data.list);
         this.goods[type].list.push(...res.data.list);
         this.goods[type].page += 1;
         // this.$refs.scroll.refresh();
@@ -168,7 +158,7 @@ export default {
   // 使用keep-alive 包裹的组件在切换路由时执行
   deactivated() {
     console.log(`Home路由切换`)
-    this.$bus.$off('itemImageLoad',this.itemImageListener);
+    this.$bus.$off('itemImageLoad', this.itemImageListener);
   }
 }
 </script>
