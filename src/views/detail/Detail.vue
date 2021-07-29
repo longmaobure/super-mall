@@ -17,7 +17,9 @@
       <goods-list :goods="recommends" ref="recommend"></goods-list>
     </scroll>
     <!--详情底部-->
-    <detail-bottom-bar></detail-bottom-bar>
+    <detail-bottom-bar @addCart="addToCart"></detail-bottom-bar>
+
+    <back-top @click.native="backClick" v-if="isShowBackTop"></back-top>
   </div>
 </template>
 
@@ -36,7 +38,7 @@ import GoodsList from "../../components/content/goods/GoodsList";
 import Scroll from "../../components/common/scroll/Scroll";
 
 import {getDetailMultiata, Goods, Shop, GoodsParam} from "../../network/detail";
-import {itemListenerMixin} from "../../common/mixin";
+import {itemListenerMixin, backTopMixin} from "../../common/mixin";
 import {debounce} from "../../common/utils";
 import {getRecommend} from "../../network/detail";
 
@@ -52,7 +54,7 @@ export default {
     DetailParamInfo,
     DetailCommentInfo,
     DetailBottomBar,
-    Scroll
+    Scroll,
   },
   data() {
     return {
@@ -66,10 +68,10 @@ export default {
       recommends: null,
       themeTopYs: [],
       getThemeYs: null,
-      currentIndex: 0
+      currentIndex: 0,
     }
   },
-  mixins: [itemListenerMixin],
+  mixins: [itemListenerMixin, backTopMixin],
   created() {
     // 1. 保存传入的id
     this.iid = this.$route.params.iid;
@@ -123,9 +125,6 @@ export default {
       console.log(this.themeTopYs);
     }, 200)
   },
-  mounted() {
-
-  },
   methods: {
     imageLoad() {
       this.$refs.scroll.refresh();
@@ -137,12 +136,13 @@ export default {
       this.$refs.scroll.scroll.scrollTo(0, -this.themeTopYs[index], 200)
       // this.$refs.scroll.scrollTo(0,-this.themeTopYs[index],200);
     },
+    // // 回到顶部
+    // backClick() {
+    //   this.$refs.scroll.scroll.scrollTo(0, 0, 500);
+    // },
     detailContentScroll(position) {
-      // console.log(position.y);
-      // console.log(this.themeTopYs)
       //1. 获取滚动的y值
       const positionY = -position.y;
-      // console.log(positionY)
       //  2. 根据y值跟主题中的值进行对比
       //  [0, 14157, 15050, 15246]
       //   y 值在 0-14157之间 index = 0
@@ -166,9 +166,12 @@ export default {
       for (let i = 0; i < length - 1; i++) {
         if (this.currentIndex !== i && (positionY >= this.themeTopYs[i] && positionY < this.themeTopYs[i + 1])) {
           this.currentIndex = i;
+
           this.$refs.detailNav.currentIndex = this.currentIndex;
         }
       }
+      this.isShowBackTop = positionY >= 1000;
+      // if (positionY)
       // for (let i = 0; i < length; i++) {
       //   if (this.currentIndex!==i&&(i < length - 1 && positionY >= this.themeTopYs[i] && positionY < this.themeTopYs[i + 1]) ||
       //     (i === length - 1 && positionY >= this.themeTopYs[i])) {
@@ -178,6 +181,19 @@ export default {
       //   }
       // }
 
+    },
+    addToCart() {
+      // 1. 获取购物车需要展示的信息
+      // img, title, info,price
+      const product = {};
+      product.image = this.topImages[0];
+      // console.log(this.goods);
+      product.title = this.goods.title;
+      product.info = this.goods.desc;
+      product.price = this.goods.newPrice;
+      product.iid = this.iid;
+
+      // 2. 将商品添加到购物车中 (Vuex)
     }
   },
   destroyed() {

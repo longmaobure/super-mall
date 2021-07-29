@@ -29,8 +29,7 @@ import NavBar from "../../components/common/navbar/NavBar";
 import TabControl from "../../components/content/tabControl/TabControl";
 import GoodsList from "../../components/content/goods/GoodsList";
 import Scroll from "../../components/common/scroll/Scroll";
-import BackTop from "../../components/content/backTop/BackTop";
-import {itemListenerMixin} from "../../common/mixin";
+import {itemListenerMixin,backTopMixin} from "../../common/mixin";
 
 import {getHomeMultiata, getHomeGoods} from "../../network/home";
 
@@ -45,7 +44,6 @@ export default {
     TabControl,
     GoodsList,
     Scroll,
-    BackTop
   },
   data() {
     return {
@@ -66,12 +64,11 @@ export default {
         }
       },
       currentType: 'pop',
-      isShowBackTop: false,
       tabOffsetTop: 0,
       isTabFixed: false,
     }
   },
-  mixins: [itemListenerMixin],
+  mixins: [itemListenerMixin,backTopMixin],
   computed: {
     showGoods() {
       return this.goods[this.currentType].list
@@ -111,10 +108,10 @@ export default {
       this.$refs.tabControl2.currentIndex = index;
     },
     // 回到顶部
-    backClick() {
-      console.log(this.$refs.scroll.scroll);
-      this.$refs.scroll.scroll.scrollTo(0, 0, 500);
-    },
+    // backClick() {
+    //   console.log(this.$refs.scroll.scroll);
+    //   this.$refs.scroll.scroll.scrollTo(0, 0, 500);
+    // },
     contentScroll(position) {
       // console.log(position);
       // 1. 判断BackTop是否显示

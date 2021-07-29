@@ -1,4 +1,5 @@
 import {debounce} from "./utils";
+import BackTop from "../components/content/backTop/BackTop";
 
 // Home组件+detail组件相同代码混入
 export const itemListenerMixin = {
@@ -16,4 +17,22 @@ export const itemListenerMixin = {
     }
     this.$bus.$on('itemImageLoad', this.itemImageListener);
   }
+}
+
+export const backTopMixin = {
+  components:{
+    BackTop
+  },
+  data() {
+    return {
+      isShowBackTop: false
+    }
+  },
+  methods: {
+    // 回到顶部
+    backClick() {
+      this.$refs.scroll.scroll.scrollTo(0, 0, 500);
+    },
+  }
+
 }
