@@ -20,6 +20,7 @@ const store = new Vuex.Store({
     },
     [ADD_TO_CART](state, payload) {
       console.log(state)
+      payload.checked = true;
       payload.count = 1;
       state.cartList.push(payload);
     }
@@ -39,6 +40,14 @@ const store = new Vuex.Store({
         context.commit(ADD_TO_CART, payload);
       }
 
+    }
+  },
+  getters: {
+    cartLength(state) {
+      return state.cartList.length;
+    },
+    cartList(state) {
+      return state.cartList
     }
   }
 })
