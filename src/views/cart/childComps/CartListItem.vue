@@ -10,7 +10,7 @@
       <div class="item-title">{{ product.title }}</div>
       <div class="item-desc">{{ product.desc }}</div>
       <div class="info-bottom">
-        <div class="item-price left">¥{{ product.price }}</div>
+        <div class="item-price left">{{ product.price }}</div>
         <div class="item-count right">x{{ product.count }}</div>
       </div>
     </div>

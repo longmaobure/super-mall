@@ -7,6 +7,8 @@
 
     <!--商品列表-->
     <cart-list></cart-list>
+    <!--底部汇总-->
+    <cart-bottom-bar></cart-bottom-bar>
   </div>
 
 </template>
@@ -15,13 +17,15 @@
 
 import NavBar from "../../components/common/navbar/NavBar";
 import CartList from "./childComps/CartList";
+import CartBottomBar from "./childComps/CartBottomBar";
 import {mapGetters} from 'vuex'
 
 export default {
   name: "Cart",
   components: {
     NavBar,
-    CartList
+    CartList,
+    CartBottomBar
   },
   computed: {
     // mapGetters 辅助函数仅仅是将 store 中的 getter 映射到局部计算属性
