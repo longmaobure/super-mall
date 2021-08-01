@@ -2,8 +2,16 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from "./router";
 import store from "./store";
-Vue.config.productionTip = false
-Vue.prototype.$bus = new Vue()
+import toast from "./components/common/toast";
+
+
+Vue.config.productionTip = false;
+// 添加事件总线
+Vue.prototype.$bus = new Vue();
+// 安装(使用) toast模块
+Vue.use(toast);
+
+
 new Vue({
   render: h => h(App),
   router,

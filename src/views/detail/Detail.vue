@@ -20,6 +20,7 @@
     <detail-bottom-bar @addCart="addToCart"></detail-bottom-bar>
 
     <back-top @click.native="backClick" v-if="isShowBackTop"></back-top>
+<!--    <Toast :message="message" :show="show"></Toast>-->
   </div>
 </template>
 
@@ -42,6 +43,10 @@ import {itemListenerMixin, backTopMixin} from "../../common/mixin";
 import {debounce} from "../../common/utils";
 import {getRecommend} from "../../network/detail";
 
+import {mapActions} from 'vuex';
+//
+// import Toast from "../../components/common/toast/Toast";
+
 export default {
   name: "Detail",
   components: {
@@ -55,6 +60,7 @@ export default {
     DetailCommentInfo,
     DetailBottomBar,
     Scroll,
+    // Toast
   },
   data() {
     return {
@@ -69,8 +75,11 @@ export default {
       themeTopYs: [],
       getThemeYs: null,
       currentIndex: 0,
+      // message:'',
+      // show:false
     }
   },
+  // 混入 图片加载监听 refresh
   mixins: [itemListenerMixin, backTopMixin],
   created() {
     // 1. 保存传入的id
@@ -126,6 +135,8 @@ export default {
     }, 200)
   },
   methods: {
+    // 映射Vuex中的 addCart函数
+    ...mapActions(['addCart']),
     imageLoad() {
       this.$refs.scroll.refresh();
 
@@ -195,7 +206,25 @@ export default {
 
       // 2. 将商品添加到购物车中 (Vuex)
       // this.$store.commit('addCart', product);
-      this.$store.dispatch('addCart', product);
+      // this.$store.dispatch('addCart', product).then(res=>{
+      //   console.log(res);
+      // });
+      // 映射 Vuex中的 actions后
+      this.addCart(product).then(res => {
+        // console.log(res);
+        // this.message = res;
+        // this.show = true;
+        //
+        // setTimeout(()=>{
+        //   this.show = false;
+        //   this.message = '';
+        // },1500)
+        // this.$toast.show('测试Toast组件',1500);
+        this.$toast.show(res);
+        console.log(this.$toast);
+      });
+
+
     }
   },
   destroyed() {

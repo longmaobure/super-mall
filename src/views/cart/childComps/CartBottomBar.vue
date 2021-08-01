@@ -13,7 +13,7 @@
     </div>
 
     <div class="calculate">
-      去计算 {{ checkLength }}
+      去计算 ({{ checkLength }})
     </div>
   </div>
 </template>
