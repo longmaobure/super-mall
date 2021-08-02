@@ -90,7 +90,7 @@ export default {
      * 事件响应相关的方法
      */
     selectItem(index) {
-      // console.log(index);
+      console.log(index);
       this._getSubcategories(index);
     }
   }
