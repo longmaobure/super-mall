@@ -1,5 +1,5 @@
 <template>
-  <scroll class="tab-menu">
+  <scroll class="tab-menu" ref="scroll">
     <div class="menu-list">
       <div class="menu-list-item"
            v-for="(item,index) in categories"
@@ -39,6 +39,10 @@ export default {
       // $emit向父组件发送数据
       this.$emit('selectItem', index);
     }
+  },
+  updated() {
+    this.$refs.scroll.refresh();
+    console.log(111)
   }
 }
 </script>

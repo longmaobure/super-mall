@@ -1,28 +1,51 @@
 <template>
   <div class="category">
-    <nav-bar class="category-nav">
+    <nav-bar class="nav-bar">
       <div slot="center">商品分类</div>
     </nav-bar>
     <div class="content">
-      <tab-menu :categories="categories" @selectItem="selectItem"></tab-menu>
+      <tab-menu :categories="categories"
+                @selectItem="selectItem"/>
+
+      <scroll class="tab-content"
+              :data="[categoryData]"
+              ref="scroll">
+        <div>
+          <tab-content-category :subcategories="showSubcategory"/>
+          <tab-control :titles="['综合', '新品', '销量']"
+                       @itemClick="tabClick"/>
+          <goods-list :goods="showCategoryDetail"/>
+        </div>
+      </scroll>
     </div>
   </div>
-
 </template>
 
 <script>
-
 import NavBar from "../../components/common/navbar/NavBar";
+
 import TabMenu from "./childComps/TabMenu";
+import TabContentCategory from "./childComps/TabContentCategory";
+
+
+import Scroll from "../../components/common/scroll/Scroll";
+import TabControl from "../../components/content/tabControl/TabControl";
+import GoodsList from "../../components/content/goods/GoodsList";
+
 import {getCategory, getSubcategory, getCategoryDetail} from "../../network/category";
 import {POP, NEW, SELL} from "../../common/const";
+import {tabControlMixin} from "../../common/mixin";
 
 
 export default {
   name: "Category",
   components: {
+    TabContentCategory,
     NavBar,
-    TabMenu
+    TabMenu,
+    Scroll,
+    TabControl,
+    GoodsList
   },
   data() {
     return {
@@ -31,8 +54,24 @@ export default {
       categoryData: {},
     }
   },
+  mixins: [tabControlMixin],
+  computed: {
+    showSubcategory() {
+      if (this.currentIndex === -1) return {}
+      return this.categoryData[this.currentIndex].subcategories
+    },
+    showCategoryDetail() {
+      if (this.currentIndex === -1) return []
+      return this.categoryData[this.currentIndex].categoryDetail[this.currentType]
+    }
+  },
   created() {
     this._getCategory();
+
+    // 2.监听图片加载完成
+    this.$bus.$on('itemImageLoad', () => {
+      this.$refs.scroll.refresh()
+    })
   },
   methods: {
     _getCategory() {
@@ -102,10 +141,11 @@ export default {
   height: 100vh;
 }
 
-.category-nav {
+.nav-bar {
   background-color: var(--color-tint);
-  color: white;
-  padding-top: 5px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 44px;
 }
 
 .content {
@@ -116,5 +156,11 @@ export default {
   bottom: 49px;
   overflow: hidden;
   display: flex;
+}
+
+.tab-content {
+  /*height: calc(100% - 44px - 49px);*/
+  height: 100%;
+  flex: 1;
 }
 </style>

@@ -32,4 +32,7 @@ export default {
   padding: 2px;
 }
 
+.goods-list .item {
+  width: 48%;
+}
 </style>
